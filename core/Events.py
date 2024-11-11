@@ -6,6 +6,9 @@
 """
 from typing import Callable
 from fastapi import FastAPI
+from database.mysql import register_mysql
+from database.redis import sys_cache
+from aioredis import Redis
 
 def startup(app: FastAPI) -> Callable:
     """
@@ -16,6 +19,8 @@ def startup(app: FastAPI) -> Callable:
     async def app_start() -> None:
         # APP启动完成后触发
         print("fastapi已启动")
+        await register_mysql(app)
+        app.state.cache = await sys_cache()
         pass
     return app_start
 
@@ -29,5 +34,6 @@ def stopping(app: FastAPI) -> Callable:
     async def stop_app() -> None:
         # APP停止时触发
         print("fastapi已停止")
-
+        cache: Redis = await app.state.cache
+        await cache.close()
     return stop_app

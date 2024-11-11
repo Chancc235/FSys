@@ -9,7 +9,7 @@ import time
 from starlette.datastructures import MutableHeaders
 from starlette.types import ASGIApp, Receive, Scope, Send, Message
 from fastapi import Request
-from core.Helper import random_str
+from core.Utils import random_str
 
 
 class Middleware:
@@ -24,7 +24,7 @@ class Middleware:
         self.app = app
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
-        if scope["type"] != "http":  # pragma: no cover
+        if scope["type"] not in ("http", "websocket"):  # pragma: no cover
             await self.app(scope, receive, send)
             return
         start_time = time.time()
